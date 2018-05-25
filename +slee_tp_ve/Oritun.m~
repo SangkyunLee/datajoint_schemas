@@ -1,0 +1,48 @@
+%{
+#slee_tp_ve.Oritun
+->slee_tp_ve.Gratingexp
+-----
+# add additional attributes
+oritun : blob # orientation tuning
+sem_oritun : blob # sem of orientation tuning
+ori : tinyblob # orientation
+%}
+
+classdef Oritun < dj.Computed
+
+	methods(Access=protected)
+
+		function makeTuples(self, key)
+		%!!! compute missing fields for key here
+        
+            Info = fetch(slee_tp_ve.Gratingexp&key,'*');
+            cont = fetchn(vs_spkray.Grating&key,'contrast');
+            ucont = unique(cont);
+            
+            ORI = ORItun(Info,key);
+            
+            for i = 1: length(ucont)
+                for j = 1: length(dtype)
+                    [tun,etun,ori]=get_oritun(ORI,'nhat',[],contrast,true);
+                    
+                    tun1 = NaN([size(tun{1}),length(tun)]);
+                    etun1 = tun1;
+                    for iscan = 1 :length(tun)                        
+                        tun1(:,:,iscan)=tun{iscan};
+                        etun1(:,:,iscan)=etun{iscan};
+                    end
+                    table = key;
+                    table.dtype = dtype;
+                    table.oritun = tun1;
+                    table.sem_oritun =etun1;
+                    table.ori = ori;
+                    table.contrast = co
+                    self.insert(table);
+                end
+            end
+            
+			 
+		end
+	end
+
+end
