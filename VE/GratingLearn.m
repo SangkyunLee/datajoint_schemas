@@ -36,7 +36,8 @@ classdef GratingLearn <vslearning
 
         end
         function [self,binx,rinx] = get_contgain(self,outframes)
-            % [self,binx,rinx] = get_contgain(self)
+            % [self,binx,rinx] = get_contgain(self, outframes)
+            % outframes : not used for calculation e.g., high motion
             nses = length(self.session_ids);
             if nargin==1
                 outframes = cell(1,nses);            
@@ -55,10 +56,11 @@ classdef GratingLearn <vslearning
         function [self, celln]= select_cell_vresp(self, rthr,binx,rinx)
             % function [self,  celln]= select_cell_vresp(self, dtype,twin, btwin, rtwin, rthr)
              % rthr: response modulation threshold
-            
+
             if isempty(rthr)                
                 rthr =0.05; % response threshold for visual response
             end
+            
             CGA1 = self.CGA;
             CGF1 = self.CGF;
             

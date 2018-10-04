@@ -42,11 +42,20 @@ classdef xls2dj_vstpscan < xls2dj
             for i = 1: n
                 dirname = self.stim_path{i}; 
                 fn1 = self.fn{i};
-                if strcmp(f(i).use,'1') && exist(dirname,'dir')==7
-                    fullfn = fullfile(dirname,fn1);                    
-                    if exist(fullfn,'file')
+                stimtype = f(i).stimulus_type;
+                if strcmp(f(i).use,'1') 
+                    if strcmp(stimtype,'spon') ||...
+                            strcmp(stimtype,'spon-dark') || ...
+                            strcmp(stimtype,'dark')
+                        
                         scanlist(k) = i;
                         k = k+1;
+                    elseif exist(dirname,'dir')==7
+                        fullfn = fullfile(dirname,fn1);                    
+                        if exist(fullfn,'file')
+                            scanlist(k) = i;
+                            k = k+1;
+                        end
                     end
                 end
             end
@@ -72,15 +81,25 @@ classdef xls2dj_vstpscan < xls2dj
                 fn1 =getfilename(f(i).stimulus_type);
                 
                 if ~ischar(stimdir)
-                    continue;
+                    if strcmp(stimtype,'spon') ||...
+                            strcmp(stimtype,'spon-dark') || ...
+                            strcmp(stimtype,'dark')
+                        
+                        self.stim_path{i} = '';
+                        self.fn{i} = '';                   
+                        self.ntrial(i) = 0;
+                    else
+                        continue;
+                    end
+                else                
+                    x = fullfile(homedir,fn1,ses_date,...
+                        stimdir);
+
+                    self.stim_path{i} = x;
+                    self.fn{i} = [fn1 '.mat'];
+                    ffn = fullfile(x,[fn1 '.mat']);
+                    self.ntrial(i) = get_ntrial(ffn,fn1);
                 end
-                x = fullfile(homedir,fn1,ses_date,...
-                    stimdir);
-                
-                self.stim_path{i} = x;
-                self.fn{i} = [fn1 '.mat'];
-                ffn = fullfile(x,[fn1 '.mat']);
-                self.ntrial(i) = get_ntrial(ffn,fn1);
             end 
         end
         
@@ -104,18 +123,28 @@ end
 
 
 function stimfn = getfilename(stim_type)
+    if isnan(stim_type)
+        stim_type='';
+    end
     switch lower(stim_type)
         case {'cont-ori-48r','cont-ori-15r','cont-ori-40r',...
                 'cont40_ori60','cont40_ori150','cont100_ori60',...
                 'cont100_ori150','grating_d60_cont100',...
-                'ori60','ori150','ori','cont-ori','orientation'}
+                'ori60','ori150','ori','cont-ori','orientation',...
+                'oddball-grating','learning45_blank', ...
+                'learning135_blank',...
+                'adaptation45','adaptation135','ori-static',...
+                'ori-adapt30','oddball30',...
+                'oddball','seqoddball'}
             stimfn ='GratingExperiment2PhotonbySang';
         case {'rfmapping'}
             stimfn ='SquareMappingExperiment2Photon';
         case {'bar0','bar90','bar180','bar270'}
             stimfn ='RFmappingBarDrift';
-        otherwise
+        case{'','spon','dark','spon-dark'}
             stimfn='';
+        otherwise
+            error('stimulus file not specified for %s',stim_type);
     end
 end
 

@@ -24,9 +24,9 @@ function [oritun_scan,  oritunerr_scan, ori]= ...
     
     scan_id = fetchn(tp,'scan_id');
     
-    for i = 1: length(scanid)
+    for i = 1: length(scan_id)
         scanstr = sprintf('scan_id=%d',scan_id(i));
-        tv = Trialvstim(tp&scanstr,sync&scanstr);
+        tv = Trialvstim(tp&scanstr,sync&scanstr,dtype);
         
         
         [y,  ey,ori]=...

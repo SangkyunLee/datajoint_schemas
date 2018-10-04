@@ -1,6 +1,10 @@
 % loading animal info
 % xlsfn = '/media/sde_WD6T/slee_tp_data/doc/Animal.xlsx'
-xlsfn = '/media/sde_WD6T/slee_tp_data/doc/SL_thy1_0206_MB.xlsx'
+%xlsfn = '/media/sde_WD6T/slee_tp_data/doc/SL_thy1_0206_MB.xlsx'
+%xlsfn = '/media/sde_WD6T/slee_tp_data/doc/SL_thy1_0220_MR.xlsx'
+% xlsfn = '/media/sde_WD6T/slee_tp_data/doc/SL_thy1_0220_ML.xlsx'
+
+
 sheet =1;
 
 
@@ -19,7 +23,7 @@ finfo.insert(common.Session,ses_inx,fldlist);
 %% insert common.TTpscan
 k=1;
 failed = cell(1,length(ses_inx));
-for inx = 1: length(ses_inx)
+for inx = 1%: length(ses_inx)
     try
         dat = finfo.finfo(ses_inx(inx));
         main_datpath='/media/sde_WD6T/slee_tp_data/VE/';
@@ -79,7 +83,11 @@ for inx = 1: length(ses_inx)
 
             ss = ss.create_datstr(fldlist,scanlist);
                 
-            if ~exist(fullfile(ses_path,'2pimage'),'dir')
+            key.animal_id = ss.animal_id;
+            key.session_id = ss.session_id;
+          
+            rel = common.Tpscan&key;
+            if rel.count ==0
                 fldlist0={'animal_id','session_id', 'scan_id'};
                 ss = ss.insert(common.Tpscan, [],fldlist0);                
             end
@@ -198,10 +206,11 @@ for inx = 1: length(ses_inx)
     for i = 1 : length(dat)
 
         d1 = dat(i);            
-        % create vs object depending on stimulus type
-        [vs, table] = creat_vsX(d1);
-        vs = vs.gen_stimdat;
+        
         try
+            % create vs object depending on stimulus type
+            [vs, table] = creat_vsX(d1);
+            vs = vs.gen_stimdat;
             if find(inx2(:)'==i)                
                 % insert vs_spkray.Condition
                 datcond = vs.create_Condition;            
@@ -215,6 +224,7 @@ for inx = 1: length(ses_inx)
             % insert vs_spkray.Trial
             datTrial = vs.create_Trial;
             insert(vs_spkray.Trial,datTrial);
+            fprintf('completed session %s(inx:%d)-%d\n',vs.session_id,inx,i);
         catch
 
             fprintf('failed:%s,%s,%d\n ',...

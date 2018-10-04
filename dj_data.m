@@ -69,8 +69,10 @@ classdef dj_data
             end
             n = length(inxscan);
             for i = 1:2:length(fld)                
-                a =repmat(fld(i+1),[1 n]);       
-                self.(fld{i}) = cell(1, max(inxscan));
+                a =repmat(fld(i+1),[1 n]);      
+%                 if isempty(self.(fld{i}))
+%                     self.(fld{i}) = cell(1, max(inxscan));
+%                 end
                 self.(fld{i})(inxscan) = a;
             end
         end

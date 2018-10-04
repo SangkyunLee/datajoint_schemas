@@ -2,7 +2,7 @@
 #pl_pr.Ext
 ->pl_pr.Seg
 -----
-
+ext_ts=CURRENT_TIMESTAMP: timestamp 
 %}
 
 classdef Ext < dj.Imported

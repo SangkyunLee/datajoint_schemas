@@ -1,0 +1,145 @@
+clear key
+key.session_id='0831'
+key.fov='FOV1'
+key.dtype ='nhat'
+key.roitype='pyr'
+
+% % 
+% key.animal_id ='SL_SST_0416_MC'
+% key.session_id='0814'
+% key.fov='FOV1'
+
+key1 = key;
+key1.grp_id = 'ori' % 'oddball-grating'%
+rel = (slee_tp_oddball.StmgrpROI&key1)&slee_tp_oddball.Selvrcell;
+S.scan = fetchn(rel,'scan_id') ;
+S.roi = fetchn(rel,'roi_id');
+S.oritun = fetchn(rel,'oritun') ;
+S.eoritun = fetchn(rel,'sem_oritun') ;
+S.ori = fetch1(slee_tp_oddball.Stmgrp&key1,'ori')
+
+
+
+
+
+key1 = key;
+key1.grp_id = 'oddball30' % 'oddball-grating'%
+rel = (slee_tp_oddball.StmgrpROI&key1)&slee_tp_oddball.Selvrcell;
+O.scan = fetchn(rel,'scan_id') ;
+O.roi = fetchn(rel,'roi_id');
+O.oritun = fetchn(rel,'oritun') ;
+O.eoritun = fetchn(rel,'sem_oritun') ;
+O.ori = fetch1(slee_tp_oddball.Stmgrp&key1,'ori');
+
+
+key1 = key;
+key1.grp_id = 'ori-adapt30' %'adaptation45'%
+rel = (slee_tp_oddball.StmgrpROI&key1)&slee_tp_oddball.Selvrcell;
+A.scan = fetchn(rel,'scan_id') ;
+A.roi = fetchn(rel,'roi_id');
+A.oritun = fetchn(rel,'oritun') ;
+A.eoritun = fetchn(rel,'sem_oritun');
+A.ori = fetch1(slee_tp_oddball.Stmgrp&key1,'ori');
+
+
+
+%%
+T=O
+cellinx = intersect(S.roi, T.roi);
+oritun = cell(1,length(cellinx));
+eoritun = cell(1,length(cellinx));
+Toritun = cell(1,length(cellinx));
+eToritun = cell(1,length(cellinx));
+peakinx = zeros(1,length(cellinx));
+for i = 1 : length(cellinx)
+    inx = find(S.roi==cellinx(i));
+    x =mean(cell2mat(S.oritun(inx)'),2);
+    oritun{i} = x;    
+    [~,peakinx(i)]=max(x);
+    x =mean(cell2mat(S.eoritun(inx)'),2);
+    eoritun{i} = x;
+    
+    inx = find(T.roi==cellinx(i));
+    x =mean(cell2mat(T.oritun(inx)'),2);
+    Toritun{i} = x;
+    x =mean(cell2mat(T.eoritun(inx)'),2);
+    eToritun{i} = x;
+end
+% peakinx = mod(peakinx,6);
+inx1 = find(peakinx<=3 &peakinx>=1);
+inx2 = find(peakinx<=6&peakinx>=4);
+
+inx = 1:2
+figure; 
+for i =1:length(inx)
+    subplot(5,3,i);
+hold on;
+errorbar(S.ori,cell2mat(oritun(inx(i))),cell2mat(eoritun(inx(i))));
+errorbar(T.ori,cell2mat(Toritun(inx(i))),cell2mat(eToritun(inx(i))),'linewidth',2);
+xlim([-10 330])
+title(num2str(cellinx(inx(i))))
+end
+
+% 30 deg shift for fig
+figure('Position',[482 557 600 120]); 
+inxs=[1 2]
+for i =1:length(inxs)
+    subplot(1,3,i);
+hold on;
+s = 1/max(cell2mat(oritun(inxs(i))));
+y =cell2mat(oritun(inxs(i)))*s;
+ey = cell2mat(eoritun(inxs(i)))*s;
+errorbar(S.ori,y([end (1:end-1)]),ey([end (1:end-1)]),'k','linewidth',1.5);
+errorbar(T.ori+30,cell2mat(Toritun(inxs(i)))*s,cell2mat(eToritun(inxs(i)))*s,'r','linewidth',2);
+xlim([-10 330])
+% set(gca,'xtick',[60 150])
+%title(num2str(cellinx(inxs(i))))
+end
+
+
+figure; 
+hold on;
+yy = zeros(2,length(inx));
+for i =1:length(inx)
+    
+
+y1 = cell2mat(oritun(inx(i)));
+% ey1 = cell2mat(eoritun(inx(i)));
+y1 = y1([2 5]);
+% ey1 = ey1([2 5]);
+
+y2 = cell2mat(Toritun(inx(i)));
+% ey2 = cell2mat(eToritun(inx(i)));
+if length(y2)==5,
+    y2 = y2([2 5]);
+    ori = T.ori([2 5]);
+else
+    ori =T.ori;
+end
+
+
+plot(ori,(y2)./y1);
+yy(:,i) = y2./y1;
+end
+plot(ori,median(yy,2), 'k','linewidth',3);
+
+
+
+
+%%
+clear key
+key.session_id='0831'
+key.scan_id =2
+[nhat,frtime] = fetch1(slee_tp_oddball.Datasort&key,'nhat','frtime');
+inxcell = fetch1(slee_tp_oddball.Selvrcell&key,'cell_nhat');
+
+y = squeeze(mean(nhat(:,:,inxcell),1));
+my = mean(y,2);
+ey = std(y,0,2)/sqrt(size(y,2));
+figure; hold on;
+errorbar(frtime,my,ey)
+xlim([-0.5 1.8])
+plot([0 0.4],[min(my) min(my)]-mean(ey),'k','linewidth',5)
+
+
+%%

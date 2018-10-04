@@ -19,41 +19,49 @@ classdef Align < dj.Imported
 	methods(Access=protected)
 
 		function makeTuples(self, key)
-            ch =2;
-            [dpath,fn,fullfns] = getFilename(common.Tpscan & key, ch);
-            
-            dpath = dpath{1};
-            fn = fn{1};
-            if isempty(dpath) || isempty(fn)
-                return;
-            end
-            
-            mcfn = dir(fullfile(dpath,['MC_' fn]));
-            if length(mcfn)==1
-                par = dir(fullfile(dpath,'motionparameter*.mat'));
-                if length(par)==1;
-                    par=load(fullfile(dpath, par.name));
+            rel = common.Tpscan & key;
+            for ch = 1:3
+                [key, dpath] = gen_key(rel,key, ch);
+                if isempty(dpath)
+                    return;
                 end
-                key.motion_x = par.M(4,:);
-                key.motion_y = par.M(3,:);
-                key.data_path = dpath;
-                key.nframes = size(par.M,2);
-                ch = sprintf('data_fn%d',ch);
-                key.(ch)=mcfn.name;
-            else
-                % I have not implemented here
-                % I have to work
-                error('not implemented yet');
-                fullfn = fullfns{1};
-                motioncorrection(fullfn);
-                
-                
             end
+            %!!! compute missing fields for key here
+             self.insert(key)
             
-            
-		%!!! compute missing fields for key here
-			 self.insert(key)
-		end
+        end
+        
+        
 	end
 
+end
+
+
+function [key, dpath] = gen_key(rel,key, ch)
+
+    [dpath,fn] = getFilename(rel, ch);
+    dpath = dpath{1};
+    fn = fn{1};
+    if isempty(fn)
+        return;
+    end
+    
+    mcfn = dir(fullfile(dpath,['MC_' fn]));
+    if isempty(mcfn)
+        % I have not implemented here
+        % I have to work
+        error('not implemented yet');
+        motioncorrection(dpath,fn);
+    end
+    par = dir(fullfile(dpath,'motionparameter*.mat'));
+    if length(par)==1;
+        par=load(fullfile(dpath, par.name));
+    end
+    key.motion_x = par.M(4,:);
+    key.motion_y = par.M(3,:);
+    key.data_path = dpath;
+    key.nframes = size(par.M,2);
+
+    ch = sprintf('data_fn%d',ch);
+    key.(ch)=mcfn.name;
 end

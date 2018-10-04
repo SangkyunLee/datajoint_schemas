@@ -7,30 +7,30 @@ classdef xls2dj_Tpscan < xls2dj
         session_id;
         scan_id;
         
-        data_path;  %
-        data_fn1;
-        data_fn2;
-        data_fn3;
+        data_path={};  %
+        data_fn1={};
+        data_fn2={};
+        data_fn3={};
         
-        ch1_color;
-        ch2_color;
-        ch3_color;
+        ch1_color={};
+        ch2_color={};
+        ch3_color={};
         
-        scanmethod;
+        scanmethod={};
         
-        anesthesia ;
-        area;
-        layer;
-        depth='NA';
+        anesthesia={} ;
+        area={};
+        layer={};
+        depth={};
         laser_wavelength=920;
-        fov;
-        scan_notes;
-        use;
-        image_type ; 
+        fov={};
+        scan_notes={};
+        use={};
+        image_type={} ; 
         
-        dwell_time;
-        pixres;
-        objective;    
+        dwell_time={};
+        pixres={};
+        objective={};    
         
         
         
@@ -51,17 +51,19 @@ classdef xls2dj_Tpscan < xls2dj
 
         end
         
-        function [scanlist,self] = get_validscanlist(self)
-            %function self = get_validscanlist(self,dpath_str)
-            % select valid scans and create data struture
+        function [tscan, zscan, self] = get_validscanlist(self)
+            %function [tscan, zscan, self] = get_validscanlist(self)
+            % return valid tscan, zscan 
 
             
           
             f = self.finfo;
             n = length(f);
 %             self.scan_id = [];
-            scanlist =zeros(1,n);
-            k =1;
+            tscan = -1*ones(1,n);
+            zscan = -1*ones(1,n);
+            tk =1;
+            zk=1;
             for i = 1: n
                 x = self.data_path{i};
                 % check data from ch1 -3
@@ -70,15 +72,22 @@ classdef xls2dj_Tpscan < xls2dj
                 d{2} = self.data_fn2{i};
                 d{3} = self.data_fn3{i};
                 
+                [~,m]=fileparts(x);
                 if strcmp(f(i).use,'1') && exist(x,'dir')==7
                     if ~all(cellfun(@isempty,d))
-                        
-                        scanlist(k) = i;
-                        k = k+1;
+                        if strcmp(m(1:8),'ZSeries-')
+                            zscan(zk) = i;
+                            zk = zk+1;
+                        end
+                        if strcmp(m(1:8),'TSeries-')
+                            tscan(tk) = i;
+                            tk = tk+1;
+                        end
                     end                    
                 end                
             end
-            scanlist =scanlist(1:k-1);
+            tscan =tscan(1:tk-1);
+            zscan =zscan(1:zk-1);
         end
         
         
@@ -94,22 +103,30 @@ classdef xls2dj_Tpscan < xls2dj
                 x = fullfile(self.scan_upfolder,...
                     f(i).Image_directory);
                 
-                if strcmp(f(i).use,'1') && exist(x,'dir')==7
-                    x2 =dir(fullfile(x,[f(i).Image_directory '*.tif']));
- 
-                    if ~isempty(x2)
-                        self.data_path{i} = x;
-                        % multiple channel handle
-                        for j = 1:nch
-                            if strfind(x2.name,['Ch' num2str(j)])
-                                str = sprintf('data_fn%d',j);
-                                self.(str){i}=x2.name;
-                            end
-                        end
-                        
-                        
-                    end                    
-                end                
+%                 if strcmp(f(i).use,'1') && exist(x,'dir')==7
+                x2 =dir(fullfile(x,[f(i).Image_directory '*.tif']));
+
+                if isempty(x2)
+                    self.data_path{i} = '';
+                else
+                    self.data_path{i} = x;
+                end
+
+                % multiple channel handle
+                for j = 1:nch
+                    str = sprintf('%s*Ch%d*.tif',f(i).Image_directory,j);
+                    fn1 = dir(fullfile(x,str));
+                    str1 = sprintf('data_fn%d',j);
+                    if length(fn1)==1,
+                        self.(str1){i}=fn1.name;
+                    elseif length(fn1)>1
+                        warning('%s,image may not be stacked',x);
+                        self.(str1){i}='';                                                            
+                    else
+                        self.(str1){i}='';                            
+                    end
+                end
+%                 end                
             end
         end
         function self = convert(self)

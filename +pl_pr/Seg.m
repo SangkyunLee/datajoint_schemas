@@ -8,6 +8,7 @@ fov_xsz : smallint unsigned # field of view size (x)
 fov_ysz : smallint unsigned # field of view size (y)
 nprad1 : float # neuroipl inner radius center to cell
 nprad2 : float # neuroipl outer radius center to cell
+seg_ts=CURRENT_TIMESTAMP: timestamp 
 %}
 
 classdef Seg < dj.Imported

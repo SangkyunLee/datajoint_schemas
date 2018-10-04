@@ -7,14 +7,14 @@ classdef xls2dj_Eye < xls2dj
   
         scan_id;
         
-        data_path;  %
-        data_fn;
-        recorder;
+        data_path={};  %
+        data_fn={};
+        recorder={};
         
-        daq_ch1;
-        daq_ch2;
+        daq_ch1={};
+        daq_ch2={};
         
-        use;        
+        use={};        
      
         
     end

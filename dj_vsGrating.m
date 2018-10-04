@@ -28,15 +28,15 @@ classdef dj_vsGrating <dj_vs
             self.stimpar.stimrad = const.stimRadiusDeg;
             self.stimpar.stimmargin = const.stimMarginDeg;
             self.stimpar.gratingwaveform = const.gratingWaveform;
-            self.stimpar.contrast = trial.contrast;
-            self.stimpar.orientation = trial.orientation;
-            self.stimpar.sf = trial.spatialFreq;
-            self.stimpar.tf = trial.tempoFreq;
-            self.stimpar.dir = trial.direction;
-            self.stimpar.ph = trial.initialPhase;
+            self.stimpar.contrast = unique(trial.contrast);
+            self.stimpar.orientation = unique(trial.orientation);
+            self.stimpar.sf = unique(trial.spatialFreq);
+            self.stimpar.tf = unique(trial.tempoFreq);
+            self.stimpar.dir = unique(trial.direction);
+            self.stimpar.ph = unique(trial.initialPhase);
             
             
-            self.condseq ={'contrast','orientation','sf','tf','dir'};
+            self.condseq ={'contrast','orientation','sf','tf','dir','ph'};
             self.cond_idx = trial.DIOValue;
         end
         

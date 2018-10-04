@@ -7,18 +7,18 @@ classdef xls2dj_Daq < xls2dj
   
         scan_id;
         
-        data_path;  %
-        data_fn;
-        recorder;
+        data_path={};  %
+        data_fn={};
+        recorder={};
         
-        nch;
-        fs;
-        frame_trigger;
-        pd;
-        wheel_ch1;
-        wheel_ch2;
+        nch={};
+        fs={};
+        frame_trigger={};
+        pd={};
+        wheel_ch1={};
+        wheel_ch2={};
         
-        use;        
+        use={};        
         
         
     end

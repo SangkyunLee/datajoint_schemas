@@ -1,12 +1,14 @@
 %{
-->pl_pr.Seg
-roi_id : smallint # roi number
------
-center_x : float # cell x-center in pixel
-center_y : float # cell y-center in pixel
-disk : longblob # pixel filled roi: donut + neucleus
-pixellist : longblob # pixel
-neuropil : longblob # neuropil pixel
+# 
+-> pl_pr.Seg
+roi_id                      : smallint                      # roi number
+---
+center_x                    : float                         # cell x-center in pixel
+center_y                    : float                         # cell y-center in pixel
+disk                        : longblob                      # pixel filled roi: donut + neucleus
+pixellist                   : longblob                      # pixel
+neuropil                    : longblob                      # neuropil pixel
+roitype="pyr"               : enum('pyr','SST','PV','Axon','Den','Spine','Bouton','VIP') # 
 %}
 
 

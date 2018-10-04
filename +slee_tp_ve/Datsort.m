@@ -28,15 +28,15 @@ classdef Datsort < dj.Computed
 
             twin=[-0.5 trialdur];
             %dff
-            tv = slee_tp_ve.Trialvstim(tp,sync,'dff');                
+            tv = Trialvstim(tp,sync,'dff');                
             dff = tv.sort_data_vstim(twin);
             key.dff = dff;
             %nhat
-            tv = slee_tp_ve.Trialvstim(tp,sync,'nhat');                
+            tv = Trialvstim(tp,sync,'nhat');                
             nhat = tv.sort_data_vstim(twin);
             key.nhat = nhat;
             %dffn
-            tv = slee_tp_ve.Trialvstim(tp,sync,'dffn');  
+            tv = Trialvstim(tp,sync,'dffn');  
             [dffn,frtime,info] = tv.sort_data_vstim(twin);
             key.dffn = dffn;
             

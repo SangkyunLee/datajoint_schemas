@@ -24,7 +24,7 @@ pixres : float # pixel resolution (in micron)
 
 laser_power : float  #(mW)
 laser_wavelength : float #(nm)
-fov : varchar(255) # Field of View information
+fov ='FOV1': enum('FOV1','FOV2','FOV3','FOV4','FOV5','FOV6','FOV7','FOV8','FOV9','FOV10') # Field of View information
 
 scan_notes = ""     : varchar(4095)  #  free-notes
 scan_ts = CURRENT_TIMESTAMP : timestamp   # don't edit

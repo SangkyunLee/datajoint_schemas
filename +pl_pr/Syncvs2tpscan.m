@@ -1,6 +1,6 @@
 %{
-# pl_pr.Syncvs2tpscan : sychronize vs photodiode to tp scan
-->pl_pr.Align
+# pl_pr.Syncvs2tpscan2 : sychronize vs photodiode to tp scan
+->pl_pr.Align2
 ->vs_spkray.Scan
 -----
 
@@ -16,6 +16,9 @@ classdef Syncvs2tpscan < dj.Imported
 
 		function makeTuples(self, key)
 		%!!! compute missing fields for key here
+        
+            
+            
             f = fetch(common.Daq&key,'*');
             [sig,ch,t]=loadDAQ(common.Daq,key);
             Nframe = fetch1(pl_pr.Align&key,'nframes');
@@ -29,12 +32,16 @@ classdef Syncvs2tpscan < dj.Imported
             frame_times(tinxf(:,1))=1;
             
             % get stimtime
+            fn =fetch1(vs_spkray.Scan&key,'fn');            
+            if isempty(fn), return; end
+            
+            
             pdt = PDT(t,sig(:,ch==f.pd));
             [minint, ~, blanktime] = pl_pr.Syncvs2tpscan.get_minISI(key);
             [tinxe,evtime] = pdt.get_tstmp(minint,[]);
             pdt.plot_result(evtime,40,...
                 sprintf('%s,%s,scan%d',key.animal_id,key.session_id,key.scan_id));
-            
+
             if min(blanktime>0)
                 lenstim = floor(length(tinxe)/2);
                 stim_onset = tinxe(1:2:lenstim*2);
@@ -48,7 +55,7 @@ classdef Syncvs2tpscan < dj.Imported
             stim_time0 = zeros(size(t));
             stim_times = stim_time0;
             stim_time0(stim_onset) = condseq(1:nevt1);    
-            
+
             if ~isempty(blank_onset)
                 stimend = blank_onset;
             else
@@ -66,8 +73,8 @@ classdef Syncvs2tpscan < dj.Imported
                     stimend=[];
                 end
             end
-            
-            
+
+
             nevt = length(condseq); 
 
             if nevt1> nevt
@@ -87,11 +94,12 @@ classdef Syncvs2tpscan < dj.Imported
                 inxes = stpoint : edpoint;
                 stim_times(inxes) = cond;    
             end    
-
+            key.stim_times = stim_times;
+            
             
             key.t = t;
             key.frame_times = frame_times;
-            key.stim_times = stim_times;
+            
         
 			 self.insert(key)
         end

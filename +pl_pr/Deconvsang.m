@@ -11,6 +11,7 @@ dff : longblob # obtained from optimal a estimated from algorithm
 nhat : longblob # estimated spikerate
 dffn : longblob # dff for neuropil with a=1;
 suc :longblob  # with success, suc=1 otherwise =0 
+deconvsang_ts=CURRENT_TIMESTAMP: timestamp 
 %}
 
 classdef Deconvsang < dj.Computed
@@ -18,9 +19,12 @@ classdef Deconvsang < dj.Computed
 	methods(Access=protected)
 
 		function makeTuples(self, key)
+            
+            % GCaMP6s : tau=0.85
+            % GcaMP7f : tau =0.2;
             par = struct('dt',[],'dff_fac',[],'dffn_fac',0,...
                 'rel_tol',0.05,'lambda1',10,...
-                'tau',0.85,'chunk',1000,'ctm_scale',0.7,...
+                'tau',0.2,'chunk',1000,'ctm_scale',0.7,...
                 'ndct_time',100, 'bspatial', true, 'F0cutoffthr',50);
             if par.bspatial
                 par.dff_fac =3;
@@ -28,8 +32,12 @@ classdef Deconvsang < dj.Computed
                 par.dff_fac =0;
             end
             
-            
-            [ft,t] = fetch1(pl_pr.Syncvs2tpscan&key,'frame_times','t');
+            rel = pl_pr.Syncvs2tpscan&key;
+            if rel.count==0
+                
+            else
+                [ft,t] = fetch1(rel,'frame_times','t');
+            end
             [Fs, Fns ] = fetchn(pl_pr.ExtROI&key,'f','n');
             
             T = fetch1(pl_pr.Align&key,'nframes');
